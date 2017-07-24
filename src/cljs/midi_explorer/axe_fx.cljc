@@ -1,6 +1,5 @@
 (ns midi-explorer.axe-fx
-  (:require [cljs.core.match :refer-macros [match]]
-            [clojure.string :refer [trimr]]
+  (:require [clojure.string :refer [trimr]]
             [midi-explorer.axe-fx.parameters :refer [parameter-name]]
             [midi-explorer.axe-fx.modifiers :refer [modifier-parameter]]
             [midi-explorer.axe-fx.ascii :refer [string-to-ascii]]
@@ -348,32 +347,32 @@
     (wrap [model 0x37 a b])))
 
 (defn payload-for-msg [type msg]
-  (match [type msg]
-    [:get-preset-number msg] {:value (apply decode-preset-number (take 2 (drop 6 msg)))}
-    [:get-preset-name msg] {:value (decode-preset-name (drop 6 msg))}
-    [:get-firmware-version msg] {:value (apply decode-firmware-version (take 2 (drop 6 msg)))}
-    [:front-panel-change-detected msg] {}
-    [:multipurpose-response msg] {:response-function-id (first (drop 6 msg))
-                                  :response-function-type (symbol-for-function-id (first (drop 6 msg)))
-                                  :response-code (first (drop 7 msg))}
-    [:midi-tempo-beat msg] {}
-    [:get-midi-channel msg] {:value (+ 1 (first (drop 6 msg)))}
-    [:tuner-info msg] {:note (first (drop 6 msg))
-                       :string-number (first (drop 7 msg))
-                       :tuner-data (first (drop 8 msg))}
-    [:set-scene-number msg] {:value (first (drop 6 msg))}
-    [:get-preset-blocks-flags msg] (decode-preset-blocks-flags (drop 6 msg))
-    [:get-grid-layout-and-routing msg] (decode-grid-layout-and-routing (drop 6 msg))
-    [:batch-list-request-start msg] {}
-    [:batch-list-request-complete msg] {}
-    [:get-block-parameters-list msg] (decode-block-parameters-list (drop 6 msg))
-    [:get-set-block-parameter-value msg] (apply decode-block-parameter-value (take 7 (drop 6 msg)))
-    [:get-set-modifier-value msg] (apply decode-get-set-modifier-value (drop 6 msg))
-    [:midi-looper-status msg] (apply decode-midi-looper-status (take 2 (drop 6 msg)))
-    [:get-block-xy msg] (apply decode-get-block-xy (take 3 (drop 6 msg)))
-    [:get-cpu-usage msg] {:value (first (drop 6 msg))}
-    [:get-preset-edited-status msg] {:value (= 1 (first (drop 6 msg)))}
-    :else {:msg msg}))
+  (case type
+    :get-preset-number {:value (apply decode-preset-number (take 2 (drop 6 msg)))}
+    :get-preset-name {:value (decode-preset-name (drop 6 msg))}
+    :get-firmware-version {:value (apply decode-firmware-version (take 2 (drop 6 msg)))}
+    :front-panel-change-detected {}
+    :multipurpose-response {:response-function-id (first (drop 6 msg))
+                            :response-function-type (symbol-for-function-id (first (drop 6 msg)))
+                            :response-code (first (drop 7 msg))}
+    :midi-tempo-beat {}
+    :get-midi-channel {:value (+ 1 (first (drop 6 msg)))}
+    :tuner-info {:note (first (drop 6 msg))
+                 :string-number (first (drop 7 msg))
+                 :tuner-data (first (drop 8 msg))}
+    :set-scene-number {:value (first (drop 6 msg))}
+    :get-preset-blocks-flags (decode-preset-blocks-flags (drop 6 msg))
+    :get-grid-layout-and-routing (decode-grid-layout-and-routing (drop 6 msg))
+    :batch-list-request-start {}
+    :batch-list-request-complete {}
+    :get-block-parameters-list (decode-block-parameters-list (drop 6 msg))
+    :get-set-block-parameter-value (apply decode-block-parameter-value (take 7 (drop 6 msg)))
+    :get-set-modifier-value (apply decode-get-set-modifier-value (drop 6 msg))
+    :midi-looper-status (apply decode-midi-looper-status (take 2 (drop 6 msg)))
+    :get-block-xy (apply decode-get-block-xy (take 3 (drop 6 msg)))
+    :get-cpu-usage {:value (first (drop 6 msg))}
+    :get-preset-edited-status {:value (= 1 (first (drop 6 msg)))}
+    {:msg msg}))
 
 (defn parse-message
   "Takes a vector of bytes as a message. Returns a map of message info."
