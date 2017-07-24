@@ -501,3 +501,21 @@
     (is (= {:type :get-cpu-usage
             :value 99}
            (axe-fx/parse-message msg)))))
+
+(deftest test-get-preset-edited-status []
+  (let [msg (axe-fx/with-checksum [240 0 1 116 3 0x2A 0xF7])]
+    (is (= msg (axe-fx/get-preset-edited-status 3)))))
+
+(deftest test-parse-get-preset-edited-status []
+  (let [msg (axe-fx/with-checksum [240 0 1 116 3 0x2A 0 0xF7])]
+    (is (= {:type :get-preset-edited-status
+            :value false}
+           (axe-fx/parse-message msg))))
+  (let [msg (axe-fx/with-checksum [240 0 1 116 3 0x2A 1 0xF7])]
+    (is (= {:type :get-preset-edited-status
+            :value true}
+           (axe-fx/parse-message msg)))))
+
+(deftest test-set-target-block []
+  (let [msg (axe-fx/with-checksum [240 0 1 116 3 0x37 0 1 0xF7])]
+    (is (= msg (axe-fx/set-target-block 3 128)))))

@@ -218,6 +218,7 @@
    0x21 :front-panel-change-detected
    0x23 :midi-looper-status
    0x29 :set-scene-number
+   0x2A :get-preset-edited-status
    0x32 :batch-list-request-start
    0x33 :batch-list-request-complete
    0x42 :disconnect-from-controller
@@ -339,6 +340,13 @@
 (defn get-cpu-usage [model]
   (wrap [model 0x13]))
 
+(defn get-preset-edited-status [model]
+  (wrap [model 0x2A]))
+
+(defn set-target-block [model effect-id]
+  (let [[a b] (encode-effect-id effect-id)]
+    (wrap [model 0x37 a b])))
+
 (defn payload-for-msg [type msg]
   (match [type msg]
     [:get-preset-number msg] {:value (apply decode-preset-number (take 2 (drop 6 msg)))}
@@ -364,6 +372,7 @@
     [:midi-looper-status msg] (apply decode-midi-looper-status (take 2 (drop 6 msg)))
     [:get-block-xy msg] (apply decode-get-block-xy (take 3 (drop 6 msg)))
     [:get-cpu-usage msg] {:value (first (drop 6 msg))}
+    [:get-preset-edited-status msg] {:value (= 1 (first (drop 6 msg)))}
     :else {:msg msg}))
 
 (defn parse-message
