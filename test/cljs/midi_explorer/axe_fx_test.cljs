@@ -1,7 +1,8 @@
 (ns midi-explorer.axe-fx-test
   (:require-macros [cljs.test :refer [deftest testing is]])
   (:require [cljs.test :as t]
-            [midi-explorer.axe-fx :as axe-fx]))
+            [midi-explorer.axe-fx :as axe-fx]
+            [midi-explorer.axe-fx.models :refer [models]]))
 
 (deftest test-checksum []
   (is (= 0x09 (axe-fx/checksum [0xF0 0x00 0x01 0x74 0x03 0x0F 0xF7]))))
@@ -11,11 +12,11 @@
   (is (= [0xF0 0x00 0x01 0x74 0x03 0x14 18 0xF7] (axe-fx/with-checksum [0xF0 0x00 0x01 0x74 0x03 0x14 0xF7]))))
 
 (deftest test-get-preset-number []
-  (let [model (:ii axe-fx/models)]
+  (let [model (:ii models)]
     (is (= [0xF0 0x00 0x01 0x74 model 0x14 18 0xF7] (axe-fx/get-preset-number model)))))
 
 (deftest test-set-preset-number []
-  (let [model (:ii axe-fx/models)]
+  (let [model (:ii models)]
     (is (= [0xF0 0x00 0x01 0x74 model 0x3C 127 0 69 0xF7]
            (axe-fx/set-preset-number model 127)))
     (is (= [0xF0 0x00 0x01 0x74 model 0x3C 0 1 59 0xF7]
@@ -26,12 +27,12 @@
   (is (= {:type :get-preset-number :value 236} (axe-fx/parse-message [240 0 1 116 3 20 1 108 121 247]))))
 
 (deftest test-get-preset-name []
-  (let [model (:ii axe-fx/models)]
+  (let [model (:ii models)]
     (is (= [0xF0 0x00 0x01 0x74 model 0x0F 9 0xF7]
            (axe-fx/get-preset-name model)))))
 
 (deftest test-set-preset-name []
-  (let [model (:ii axe-fx/models)
+  (let [model (:ii models)
         msg [0xF0 0x00 0x01 0x74 model 0x09 97 115 99 105 105 0xF7]]
     (is (= (axe-fx/with-checksum msg)
            (axe-fx/set-preset-name model "ascii")))))
@@ -42,14 +43,14 @@
            (axe-fx/parse-message msg)))))
 
 (deftest test-get-firmware-version []
-  (let [model (:ii axe-fx/models)]
+  (let [model (:ii models)]
     (is (= [0xF0 0x00 0x01 0x74 model 0x08 14 0xF7] (axe-fx/get-firmware-version model)))))
 
 (deftest test-parse-message-firmware-version []
   (is (= {:type :get-firmware-version :value "8.2"} (axe-fx/parse-message [240 0 1 116 3 8 0x08 0x02 0 0 0 0 "checksum" 247]))))
 
 (deftest test-disconnect-from-controller []
-  (let [model (:ii axe-fx/models)]
+  (let [model (:ii models)]
     (is (= [0xF0 0x00 0x01 0x74 model 0x42 68 0xF7] (axe-fx/disconnect-from-controller model)))))
 
 (deftest test-parse-front-panel-change-detected []
@@ -66,7 +67,7 @@
   (is (= {:type :midi-tempo-beat} (axe-fx/parse-message [240 0 1 116 3 0x10 0xF7]))))
 
 (deftest test-get-midi-channel []
-  (let [model (:ii axe-fx/models)]
+  (let [model (:ii models)]
     (is (= [240 0 1 116 3 0x17 17 0xF7] (axe-fx/get-midi-channel model)))))
 
 (deftest test-parse-get-midi-channel []
@@ -90,7 +91,7 @@
   (is (= [176 122 127] (axe-fx/metronome-toggle 1 true))))
 
 (deftest test-get-preset-blocks-flags []
-  (is (= [240 0 1 116 3 0x0E 8 0xF7] (axe-fx/get-preset-blocks-flags (:ii axe-fx/models)))))
+  (is (= [240 0 1 116 3 0x0E 8 0xF7] (axe-fx/get-preset-blocks-flags (:ii models)))))
 
 (deftest test-parse-get-preset-blocks-flags []
   (let [msg [240 0 1 116 3 14 3 74 16 83 6 3 78 24 99 6 2 86 124 39 6 3 94 40 3 7 2 98 48 43 120 2 100 52 51 120 3 102 124 63 120 2 10 125 23 7 3 38 81 115 6 2 52 125 7 120 3 58 125 127 7 247]]
@@ -109,7 +110,7 @@
            (axe-fx/parse-message msg)))))
 
 (deftest test-set-scene-number []
-  (is (= [240 0 1 116 3 41 0 47 247] (axe-fx/set-scene-number (:ii axe-fx/models) 0))))
+  (is (= [240 0 1 116 3 41 0 47 247] (axe-fx/set-scene-number (:ii models) 0))))
 
 (deftest test-parse-set-scene-number []
   (is (= {:type :set-scene-number :value 0} (axe-fx/parse-message [240 0 1 116 3 41 0 47 247])))
@@ -117,7 +118,7 @@
   (is (= {:type :set-scene-number :value 7} (axe-fx/parse-message [240 0 1 116 3 41 7 47 247]))))
 
 (deftest test-get-grid-layout-and-routing []
-  (is (= [240 0 1 116 3 0x20 38 0xF7] (axe-fx/get-grid-layout-and-routing (:ii axe-fx/models)))))
+  (is (= [240 0 1 116 3 0x20 38 0xF7] (axe-fx/get-grid-layout-and-routing (:ii models)))))
 
 (deftest test-parse-get-grid-layout-and-routing []
   (let [msg [240 0 1 116 3 32 0 0 0 0 127 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 100 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 0 0 0 0 0 0 0 0 0 0 0 0 0 5 1 2 0 0 0 0 0 0 0 0 0 0 0 0 0 6 1 2 0 0 0 0 0 0 0 0 0 0 0 0 0 106 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 108 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 79 1 2 0 0 0 0 0 0 0 0 0 0 0 0 0 112 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 114 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 110 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 7 1 2 0 0 0 0 0 0 0 0 0 29 247]
@@ -211,7 +212,7 @@
            (first (drop 45 blocks))))))
 
 (deftest test-get-block-parameters-list []
-  (let [model (:ii axe-fx/models)]
+  (let [model (:ii models)]
     (is (= [240 0 1 116 3 0x01 0 1 6 0xF7]
            (axe-fx/get-block-parameters-list model 128)))
     (is (= [240 0 1 116 3 0x01 127 0 120 0xF7]
@@ -362,7 +363,7 @@
 
 (deftest test-get-block-parameter-value []
   (let [msg [240 0 1 116 3 0x02 127 0 60 0 0 0 0 0 71 0xF7]
-        model (:ii axe-fx/models)]
+        model (:ii models)]
     (is (= msg (axe-fx/get-block-parameter-value model 127 60)))))
 
 (deftest test-parse-get-block-parameter-value []
@@ -377,24 +378,24 @@
 
 (deftest test-set-block-parameter-value []
   (let [msg (axe-fx/with-checksum [240 0 1 116 3 0x02 127 0 60 0 0 1 0 1 0xF7])
-        model (:ii axe-fx/models)]
+        model (:ii models)]
     (is (= msg (axe-fx/set-block-parameter-value model 127 60 128)))))
 
 (deftest test-set-tempo []
-  (let [model (:ii axe-fx/models)]
+  (let [model (:ii models)]
     (is (= (axe-fx/set-block-parameter-value model 141 32 132)
            (axe-fx/set-tempo model 132)))))
 
 (deftest test-set-typed-block-parameter-value []
   (let [raw [240 0 1 116 3 0x2E 127 0 60 0 0 0 0 0 0 0xF7]
         msg (axe-fx/with-checksum raw)
-        model (:ii axe-fx/models)]
+        model (:ii models)]
     (is (= msg (axe-fx/set-typed-block-parameter-value model 127 60 0)))))
 
 (deftest test-get-modifier-value []
   (let [raw [240 0 1 116 3 0x07 127 0 10 0 0x1 0 0 0 0 0 0xF7]
         msg (axe-fx/with-checksum raw)
-        model (:ii axe-fx/models)]
+        model (:ii models)]
     (is (= msg (axe-fx/get-modifier-value model 127 10 0x1)))))
 
 (deftest test-parse-get-modifier-value []
@@ -413,16 +414,16 @@
 (deftest test-set-modifier-value []
   (let [raw [240 0 1 116 3 0x07 127 0 10 0 0x1 0 30 0 0 1 0xF7]
         msg (axe-fx/with-checksum raw)
-        model (:ii axe-fx/models)]
+        model (:ii models)]
     (is (= msg (axe-fx/set-modifier-value model 127 10 0x1 30)))))
 
 (deftest test-midi-looper-status-enable []
   (let [msg (axe-fx/with-checksum [240 0 1 116 3 0x23 1 0xF7])]
-    (is (= msg (axe-fx/midi-looper-status-enable (:ii axe-fx/models))))))
+    (is (= msg (axe-fx/midi-looper-status-enable (:ii models))))))
 
 (deftest test-midi-looper-status-disable []
   (let [msg (axe-fx/with-checksum [240 0 1 116 3 0x23 0 0xF7])]
-    (is (= msg (axe-fx/midi-looper-status-disable (:ii axe-fx/models))))))
+    (is (= msg (axe-fx/midi-looper-status-disable (:ii models))))))
 
 (deftest test-parse-midi-looper-status []
   (let [msg (axe-fx/wrap [3 0x23 0 25])]
@@ -485,7 +486,7 @@
            (axe-fx/parse-message msg)))))
 
 (deftest test-set-block-bypass []
-  (let [model (:ii axe-fx/models)
+  (let [model (:ii models)
         effect-id 106]
     (is (= (axe-fx/set-block-parameter-value model effect-id 255 1)
            (axe-fx/set-block-bypass model effect-id true)))

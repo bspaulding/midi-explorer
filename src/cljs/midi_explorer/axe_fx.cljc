@@ -3,18 +3,9 @@
             [midi-explorer.axe-fx.parameters :refer [parameter-name]]
             [midi-explorer.axe-fx.modifiers :refer [modifier-parameter]]
             [midi-explorer.axe-fx.ascii :refer [string-to-ascii]]
-            [midi-explorer.axe-fx.encoders :refer [encode-effect-id encode-parameter-value encode-typed-parameter-value]]))
+            [midi-explorer.axe-fx.encoders :refer [encode-effect-id encode-parameter-value encode-typed-parameter-value]]
+            [midi-explorer.axe-fx.models :refer [models]]))
 
-(def models {:standard 0x00
-             :ultra 0x01
-             :mfc101 0x02
-             :ii 0x03
-             :mfc101mk3 0x04
-             :fx8 0x05
-             :ii-xl 0x06
-             :ii-xl-plus 0x07
-             :ax8 0x08
-             :fx8mk2 0x0A})
 (def blocks
   {106 "Amp 1"
    107 "Amp 2"

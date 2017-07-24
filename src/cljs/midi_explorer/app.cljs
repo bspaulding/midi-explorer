@@ -1,6 +1,7 @@
 (ns midi-explorer.app
     (:require [rum.core :as rum]
-              [midi-explorer.axe-fx :as axe-fx]))
+              [midi-explorer.axe-fx :as axe-fx]
+              [midi-explorer.axe-fx.models :refer [models]]))
 
 (defonce state (atom {}))
 (add-watch state :log-state (fn [_ _ _ new-state] (.log js/console new-state)))
@@ -28,7 +29,7 @@
 (defn send-midi-message [fm]
   (fn []
     (let [device (selected-output-device @state)
-          model (:ii axe-fx/models)]
+          model (:ii models)]
       (.send device (clj->js (fm model))))))
 
 (defn onMidiMessage [e]
