@@ -14,7 +14,9 @@
                  [binaryage/devtools "0.9.4" :scope "test"]
                  [powerlaces/boot-cljs-devtools "0.2.0" :scope "test"]
                  [org.clojure/core.match "0.3.0-alpha4"]
-                 [boot-fmt/boot-fmt "0.1.6" :scope "test"]])
+                 [boot-fmt/boot-fmt "0.1.6" :scope "test"]
+                 [bspaulding/axe-fx-midi "1.0.0-SNAPSHOT"]
+								 [nightlight "1.7.2" :scope "test"]])
 
 (require
  '[adzerk.boot-cljs      :refer [cljs]]
@@ -23,7 +25,8 @@
  '[pandeiro.boot-http    :refer [serve]]
  '[crisptrutski.boot-cljs-test :refer [test-cljs]]
  '[powerlaces.boot-cljs-devtools :refer [cljs-devtools dirac]]
- '[boot-fmt.core :refer [fmt]])
+ '[boot-fmt.core :refer [fmt]]
+ '[nightlight.boot :refer [nightlight]])
 
 (deftask build
   "This task contains all the necessary steps to produce a build
@@ -61,7 +64,7 @@
   "Simple alias to run application in development mode"
   []
   (comp (development)
-        (fmt :overwrite true :really true :source true)
+				(nightlight :port 4000 :url "http://localhost:3000")
         (run)))
 
 
